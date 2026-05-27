@@ -1,6 +1,6 @@
 # DEUARC – DEU Electronic Universal Automatic Reduced Computer
 
-A basic computer architecture designed and simulated in **Quartus II** as part of the CME 2206 Computer Architecture term project at Dokuz Eylül University.
+A basic computer architecture designed and simulated in **Quartus II** as part of the CME 2206 Computer Architecture term project.
 
 ## Overview
 
@@ -28,31 +28,46 @@ DEUARC is a reduced computer consisting of a register file, memory subsystem, co
 | Data Memory | 16×4 | Read / Write |
 | Stack Memory | 16×5 | Read / Write |
 
-### ALU Operations
+## Instruction Set
 
-Controlled by a 4-bit opcode `X[3..0]`:
+Instructions are 11 bits wide. Format varies by type.
 
-| Code | Operation | Description |
-|------|-----------|-------------|
-| 0000 | DBL | Double Rs, store in Rd |
-| 0001 | DBT | Halve Rs, store in Rd |
-| 0010 | AND | Rs AND S2, store in Rd |
-| 0011 | NOT | Complement Rs, store in Rd |
-| 0100 | XOR | Rs XOR S2, store in Rd |
-| 0101 | ADD | Rs + S2, store in Rd |
-| 0110 | INC | Rs + 1, store in Rd |
+### Arithmetic and Logic Operations
+Format: `Q(1) | Opcode(4) | Rd(2) | S1(2) | S2(2)`
 
-### Control Unit
+| Opcode | Symbol | Description |
+|--------|--------|-------------|
+| 0000 | DBL | Double S1, store in Rd |
+| 0001 | DBT | Halve S1, store in Rd |
+| 0010 | AND | S1 AND S2, store in Rd |
+| 0011 | NOT | Complement S1, store in Rd |
+| 0100 | XOR | S1 XOR S2, store in Rd |
+| 0101 | ADD | S1 + S2, store in Rd |
+| 0110 | INC | S1 + 1, store in Rd |
 
-Decodes instructions and generates micro-operation signals for fetch, decode, and execute cycles.
+Register encoding for Rd, S1, S2: `00`→R0, `01`→R1, `10`→R2
 
-## Project Structure
+### Data Transfer Operations
+Format: `Q(1) | Opcode(4) | Rd(2) | S1(2) | S2(2)`
 
-The repository contains Quartus II project files for three lab assignments:
+| Opcode | Symbol | Description |
+|--------|--------|-------------|
+| 1000 | ST | Q=0: write Rd to memory address S1S2; Q=1: write data S1S2 to address in Rd |
+| 1001 | LD | Q=1: read memory at S1S2, load into Rd; Q=0: load data S1S2 directly into Rd |
+| 1010 | IO | Q=0: transfer S1 into OUTR; Q=1: transfer INPR into Rd |
+| 1011 | TSF | Transfer S1 into Rd |
 
-- **Assignment 1** – Common Bus System and Registers
-- **Assignment 2** – ALU design and integration
-- **Assignment 3** – Control Unit
+### Program Control Operations
+Format: `-(1) | Opcode(4) | -(1) | Address(5)`
+
+| Opcode | Symbol | Description |
+|--------|--------|-------------|
+| 1100 | JMP | Q=0: jump to address; Q=1: jump if V=1 |
+| 1101 | CAL | Call subroutine (PUSH PC to stack, jump to address) |
+| 1110 | RET | Return from subroutine (POP PC from stack) |
+| 1111 | HLT | Halt the computer |
+
+JMR uses format `-(1) | Opcode(4) | -(2) | Address(4, signed)` -- jumps relative to current PC.
 
 ## Tools
 
